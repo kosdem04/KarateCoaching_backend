@@ -7,6 +7,7 @@ from src.security import create_access_token, generate_password
 from src.models.groups import GroupORM
 from src.models.events import EventORM
 from src.utils.send_email import send_registration_email
+from src.models.coaches import CoachProfileORM
 
 router = APIRouter(
     prefix="/auth",
