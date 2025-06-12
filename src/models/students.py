@@ -58,3 +58,22 @@ class StudentProfileORM(Base):
         back_populates="students",
         secondary="students_events"
     )
+
+
+
+class SportLevelORM(Base):
+    __tablename__ = 'sports_levels'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
+        primary_key=True,
+        default=uuid.uuid4,  # передаём функцию, не вызываем
+    )
+    name: Mapped[str] = mapped_column(String(50), unique=True)
+
+
+    # users: Mapped[List["UserORM"]] = relationship(
+    #     "UserORM",
+    #     back_populates="organization",
+    #     passive_deletes=True
+    # )

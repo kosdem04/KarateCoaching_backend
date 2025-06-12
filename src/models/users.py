@@ -9,6 +9,27 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
 
+
+class OrganizationORM(Base):
+    __tablename__ = 'organizations'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
+        primary_key=True,
+        default=uuid.uuid4,  # передаём функцию, не вызываем
+    )
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    subdomain: Mapped[str] = mapped_column(String(50), unique=True)
+    is_active : Mapped[bool]
+    created_at : Mapped[datetime.date]
+
+    users: Mapped[List["UserORM"]] = relationship(
+        "UserORM",
+        back_populates="organization",
+        passive_deletes=True
+    )
+
+
 class UserORM(Base):
     __tablename__ = 'users'
 
@@ -16,6 +37,9 @@ class UserORM(Base):
         UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
         primary_key=True,
         default=uuid.uuid4,  # передаём функцию, не вызываем
+    )
+    organization_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey('organizations.id', ondelete='CASCADE')
     )
     last_name: Mapped[str] = mapped_column(String(64))
     first_name: Mapped[str] = mapped_column(String(30))
@@ -27,6 +51,10 @@ class UserORM(Base):
     date_of_birth: Mapped[datetime.date] = mapped_column(nullable=True)
     img_url: Mapped[str] = mapped_column(String(1000))
 
+    organization: Mapped["OrganizationORM"] = relationship(
+        "OrganizationORM",
+        back_populates="users"
+    )
     events: Mapped[List["EventORM"]] = relationship(
         "EventORM",
         back_populates="coach",
