@@ -28,7 +28,7 @@ jobs:
           scp -r ./* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/deploy_temp_backend
 
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
-            rsync -av ~/deploy_temp_backend/ /root/projects/backend/ &&
+            rsync -av ~/deploy_temp_backend/ /root/projects/KarateCoaching/backend/ &&
             cd /root/projects/KarateCoaching/backend &&
             docker compose down &&
             docker compose up -d --build &&
