@@ -28,6 +28,14 @@ class StudentProfileORM(Base):
         ForeignKey("groups.id", ondelete="SET NULL"),
         nullable=True
     )
+    level_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("sports_levels.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    weight: Mapped[Optional[str]] = mapped_column(String(5))
+    first_coach: Mapped[Optional[str]] = mapped_column(String(100))
+    medical_permit: Mapped[Optional[datetime.date]]
+
 
     # связи
     student_data: Mapped["UserORM"] = relationship(
@@ -44,6 +52,11 @@ class StudentProfileORM(Base):
 
     group: Mapped[Optional["GroupORM"]] = relationship(
         "GroupORM",
+        back_populates="students"
+    )
+
+    level: Mapped[Optional["SportLevelORM"]] = relationship(
+        "SportLevelORM",
         back_populates="students"
     )
 
@@ -72,8 +85,8 @@ class SportLevelORM(Base):
     name: Mapped[str] = mapped_column(String(50), unique=True)
 
 
-    # users: Mapped[List["UserORM"]] = relationship(
-    #     "UserORM",
-    #     back_populates="organization",
-    #     passive_deletes=True
-    # )
+    students: Mapped[List["StudentProfileORM"]] = relationship(
+        "StudentProfileORM",
+        back_populates="level",
+        passive_deletes=True
+    )

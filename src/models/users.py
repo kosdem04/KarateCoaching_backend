@@ -83,6 +83,12 @@ class UserORM(Base):
         uselist=False,
         foreign_keys="[StudentProfileORM.student_id]"
     )
+    coach_profile: Mapped[Optional["CoachProfileORM"]] = relationship(
+        "CoachProfileORM",
+        back_populates="coach_data",
+        uselist=False,
+        foreign_keys="[CoachProfileORM.coach_id]"
+    )
 
     # один-ко-многим: если пользователь — тренер
     student: Mapped[List["StudentProfileORM"]] = relationship(
