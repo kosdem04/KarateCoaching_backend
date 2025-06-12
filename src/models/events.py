@@ -19,7 +19,7 @@ class EventORM(Base):
     )
     name: Mapped[str] = mapped_column(String(100))
     coach_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey('users.id', ondelete='SET NULL')
+        ForeignKey('coach_profiles.coach_id', ondelete='SET NULL')
     )
     type_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey('event_types.id', ondelete='SET NULL')
@@ -32,8 +32,8 @@ class EventORM(Base):
         back_populates="event",
         passive_deletes=True
     )
-    coach: Mapped["UserORM"] = relationship(
-        "UserORM",
+    coach: Mapped["CoachProfileORM"] = relationship(
+        "CoachProfileORM",
         back_populates="events"
     )
     type: Mapped["EventTypeORM"] = relationship(

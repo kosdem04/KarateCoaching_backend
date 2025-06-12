@@ -19,10 +19,11 @@ class GroupORM(Base):
     )
     name: Mapped[str] = mapped_column(String(100))
     coach_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey('users.id', ondelete='SET NULL')
+        ForeignKey('coach_profiles.coach_id', ondelete='SET NULL')
     )
-    coach: Mapped["UserORM"] = relationship(
-        "UserORM",
+
+    coach: Mapped["CoachProfileORM"] = relationship(
+        "CoachProfileORM",
         back_populates="groups"
     )
 

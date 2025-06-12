@@ -55,16 +55,6 @@ class UserORM(Base):
         "OrganizationORM",
         back_populates="users"
     )
-    events: Mapped[List["EventORM"]] = relationship(
-        "EventORM",
-        back_populates="coach",
-        passive_deletes=True
-    )
-    groups: Mapped[List["GroupORM"]] = relationship(
-        "GroupORM",
-        back_populates="coach",
-        passive_deletes=True
-    )
     roles: Mapped[List["RoleORM"]] = relationship(
         "RoleORM",
         back_populates="users",

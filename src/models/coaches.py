@@ -21,3 +21,14 @@ class CoachProfileORM(Base):
         back_populates="coach_profile",
         foreign_keys=[coach_id]
     )
+
+    events: Mapped[List["EventORM"]] = relationship(
+        "EventORM",
+        back_populates="coach",
+        passive_deletes=True
+    )
+    groups: Mapped[List["GroupORM"]] = relationship(
+        "GroupORM",
+        back_populates="coach",
+        passive_deletes=True
+    )
