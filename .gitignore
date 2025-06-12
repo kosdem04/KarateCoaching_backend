@@ -1,0 +1,6 @@
+**/__pycache__/
+.venv
+/src/config.py
+/src/main.py
+
+alembic.ini

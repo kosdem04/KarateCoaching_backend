@@ -1,0 +1,36 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy backend via docker-compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+            rm -rf ~/deploy_temp_backend &&
+            mkdir ~/deploy_temp_backend
+          '
+
+          scp -r ./* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/deploy_temp_backend
+
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+            rsync -av ~/deploy_temp_backend/ /root/projects/backend/ &&
+            cd /root/projects/KarateCoaching/backend &&
+            docker compose down &&
+            docker compose up -d --build &&
+            rm -rf ~/deploy_temp_backend
+          '
