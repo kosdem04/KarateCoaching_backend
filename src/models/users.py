@@ -65,6 +65,11 @@ class UserORM(Base):
         back_populates="user",
         cascade='all, delete'
     )
+    result_comments: Mapped[List["ResultCommentORM"]] = relationship(
+        "ResultCommentORM",
+        back_populates="user",
+        cascade='all, delete'
+    )
 
     # один-к-одному: если пользователь — ученик
     student_profile: Mapped[Optional["StudentProfileORM"]] = relationship(
