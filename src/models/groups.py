@@ -32,3 +32,80 @@ class GroupORM(Base):
         back_populates="group",
         cascade='all, delete-orphan'
     )
+
+    trainings: Mapped[List["TrainingORM"]] = relationship(
+        "TrainingORM",
+        back_populates="group",
+        cascade='all, delete-orphan'
+    )
+
+
+class TrainingORM(Base):
+    __tablename__ = 'trainings'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
+        primary_key=True,
+        default=uuid.uuid4,  # передаём функцию, не вызываем
+    )
+    name: Mapped[str] = mapped_column(String(100))
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey('groups.id', ondelete='CASCADE')
+    )
+    coach_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey('coach_profiles.coach_id', ondelete='CASCADE')
+    )
+    date: Mapped[datetime.date]
+    start_time: Mapped[datetime.time]
+    end_time: Mapped[datetime.time]
+
+    coach: Mapped["CoachProfileORM"] = relationship(
+        "CoachProfileORM",
+        back_populates="trainings"
+    )
+
+    group: Mapped["GroupORM"] = relationship(
+        "GroupORM",
+        back_populates="trainings"
+    )
+
+
+class AttendanceStatusORM(Base):
+    __tablename__ = 'attendance_statuses'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
+        primary_key=True,
+        default=uuid.uuid4,  # передаём функцию, не вызываем
+    )
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+
+    attendance_list: Mapped[List["AttendanceORM"]] = relationship(
+        "AttendanceORM",
+        back_populates="status",
+        passive_deletes=True
+    )
+
+
+class AttendanceORM(Base):
+    __tablename__ = 'attendance'
+
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey('student_profiles.student_id', ondelete='CASCADE'),
+        primary_key=True
+    )
+
+    training_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("trainings.id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    status_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey('attendance_statuses.id', ondelete='CASCADE')
+    )
+
+    status: Mapped["AttendanceStatusORM"] = relationship(
+        "AttendanceStatusORM",
+        back_populates="attendance_list"
+    )
+
+

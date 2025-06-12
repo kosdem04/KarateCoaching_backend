@@ -32,3 +32,9 @@ class CoachProfileORM(Base):
         back_populates="coach",
         passive_deletes=True
     )
+
+    trainings: Mapped[List["TrainingORM"]] = relationship(
+        "TrainingORM",
+        back_populates="coach",
+        passive_deletes=True
+    )
