@@ -1,5 +1,3 @@
-from enum import unique
-
 from src.database import Base
 from typing import List, Optional
 from sqlalchemy import ForeignKey, String, BigInteger
@@ -7,7 +5,8 @@ from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, relationship
 import datetime
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-
+from sqlalchemy import Numeric, Enum
+from decimal import Decimal
 
 
 class OrganizationORM(Base):
@@ -22,9 +21,20 @@ class OrganizationORM(Base):
     subdomain: Mapped[str] = mapped_column(String(50), unique=True)
     is_active : Mapped[bool]
     created_at : Mapped[datetime.date]
+    # 🧾 Реквизиты для ЮKassa (или другого провайдера)
+    payment_provider: Mapped[str] = mapped_column(String(50), nullable=True)  # например, "yookassa"
+    payment_account_id: Mapped[str] = mapped_column(String(100), nullable=True)  # shop_id
+    payment_secret_key: Mapped[str] = mapped_column(String(200), nullable=True)  # secret key
+    tax_system_code: Mapped[int] = mapped_column(nullable=True)  # код налогообложения для чеков
 
     users: Mapped[List["UserORM"]] = relationship(
         "UserORM",
+        back_populates="organization",
+        passive_deletes=True
+    )
+
+    student_payments: Mapped[List["TrainingPaymentORM"]] = relationship(
+        "TrainingPaymentORM",
         back_populates="organization",
         passive_deletes=True
     )
@@ -151,4 +161,36 @@ class ResetPasswordCodeORM(Base):
         back_populates="reset_password_codes"
     )
 
+
+class TrainingPaymentORM(Base):
+    __tablename__ = 'training_payments'
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+
+    organization_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("organizations.id", ondelete="SET NULL")
+    )
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("student_profiles.student_id", ondelete="SET NULL"),
+        nullable=True
+    )
+
+    amount: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    status: Mapped[str] = mapped_column(String(30))  # например, 'pending', 'succeeded', 'failed'
+    description: Mapped[str] = mapped_column(String(255))
+    external_payment_id: Mapped[str] = mapped_column(String(100))  # id из ЮKassa
+    created_at: Mapped[datetime.datetime]
+    email: Mapped[str] = mapped_column(String(254), nullable=True)  # email ученика для чека
+
+    student: Mapped["StudentProfileORM"] = relationship(
+        "StudentProfileORM",
+        back_populates="payments"
+    )
+
+    organization: Mapped["OrganizationORM"] = relationship(
+        "OrganizationORM",
+        back_populates="student_payments"
+    )
 

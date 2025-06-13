@@ -72,6 +72,12 @@ class StudentProfileORM(Base):
         secondary="students_events"
     )
 
+    payments: Mapped[List["TrainingPaymentORM"]] = relationship(
+        "TrainingPaymentORM",
+        back_populates="student",
+        passive_deletes=True
+    )
+
 
 
 class SportLevelORM(Base):
