@@ -27,24 +27,6 @@ class PlaceORM(Base):
     )
 
 
-class SportTypeORM(Base):
-    __tablename__ = 'sport_types'
-
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),  # нативный тип UUID PostgreSQL
-        primary_key=True,
-        default=uuid.uuid4,  # передаём функцию, не вызываем
-    )
-    name: Mapped[str] = mapped_column(String(100), unique=True)
-    code: Mapped[str] = mapped_column(String(100), unique=True)
-
-    results: Mapped[List["ResultORM"]] = relationship(
-        "ResultORM",
-        back_populates="sport_type",
-        passive_deletes=True
-    )
-
-
 class ResultORM(Base):
     __tablename__ = 'results'
 

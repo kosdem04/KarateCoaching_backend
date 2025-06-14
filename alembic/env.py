@@ -26,6 +26,7 @@ from src.models.students import StudentProfileORM
 from src.models.results import ResultORM
 from src.models.groups import GroupORM
 from src.models.coaches import CoachProfileORM
+from src.models.categories import GenderORM
 from src.database import Base
 target_metadata = Base.metadata
 
