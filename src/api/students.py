@@ -169,7 +169,7 @@ async def update_student(
     return {"status": "ok"}
 
 
-@router.delete("/{student_id}",
+@router.delete("del/{student_id}",
             tags=["Ученики"],
             summary="Удаление ученика",
          )
