@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
 
 jobs:
   deploy-backend:
@@ -18,18 +19,34 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Set environment variables
+        id: set-vars
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "server_user=${{ secrets.PROD_SERVER_USER }}" >> $GITHUB_OUTPUT
+            echo "server_host=${{ secrets.PROD_SERVER_HOST }}" >> $GITHUB_OUTPUT
+            echo "remote_path=/srv/CoachCraft/backend" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "server_user=${{ secrets.DEV_SERVER_USER }}" >> $GITHUB_OUTPUT
+            echo "server_host=${{ secrets.DEV_SERVER_HOST }}" >> $GITHUB_OUTPUT
+            echo "remote_path=/root/projects/KarateCoaching/backend/" >> $GITHUB_OUTPUT
+          else
+            echo "Unknown branch: ${{ github.ref }}"
+            exit 1
+          fi
+
       - name: Deploy backend via docker-compose
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+          ssh -o StrictHostKeyChecking=no ${{ steps.set-vars.outputs.server_user }}@${{ steps.set-vars.outputs.server_host }} '
             rm -rf ~/deploy_temp_backend &&
             mkdir ~/deploy_temp_backend
           '
 
-          scp -r ./* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/deploy_temp_backend
+          scp -r ./* ${{ steps.set-vars.outputs.server_user }}@${{ steps.set-vars.outputs.server_host }}:~/deploy_temp_backend
 
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
-            rsync -av ~/deploy_temp_backend/ /root/projects/KarateCoaching/backend/ &&
-            cd /root/projects/KarateCoaching/backend &&
+          ssh -o StrictHostKeyChecking=no ${{ steps.set-vars.outputs.server_user }}@${{ steps.set-vars.outputs.server_host }} '
+            rsync -av ~/deploy_temp_backend/ ${{ steps.set-vars.outputs.remote_path }}/ &&
+            cd ${{ steps.set-vars.outputs.remote_path }} &&
             docker compose down &&
             docker compose up -d --build &&
             rm -rf ~/deploy_temp_backend
