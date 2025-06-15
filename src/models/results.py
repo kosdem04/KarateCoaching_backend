@@ -20,8 +20,8 @@ class PlaceORM(Base):
     )
     name: Mapped[str] = mapped_column(String(10))
 
-    results: Mapped[List["KarateKumiteResultORM"]] = relationship(
-        "KarateKumiteResultORM",
+    results: Mapped[List["ResultORM"]] = relationship(
+        "ResultORM",
         back_populates="place",
         cascade='all, delete'
     )
@@ -41,10 +41,21 @@ class ResultORM(Base):
     event_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey('events.id', ondelete='SET NULL')
     )
+    place_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey('places.id', ondelete='SET NULL')
+    )
     sport_type_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         ForeignKey('sport_types.id', ondelete='RESTRICT'),
     )
     sport_code: Mapped[Optional[str]] = mapped_column(String(50))
+    age_category_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey('age_categories.id', ondelete='RESTRICT')
+    )
+    weight_category_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey('weight_categories.id', ondelete='SET NULL'),
+        nullable=True
+    )
+    visited: Mapped[bool]
 
 
     event: Mapped["EventORM"] = relationship(
@@ -58,6 +69,19 @@ class ResultORM(Base):
     )
     sport_type: Mapped["SportTypeORM"] = relationship(
         "SportTypeORM",
+        back_populates="results"
+    )
+
+    place: Mapped["PlaceORM"] = relationship(
+            "PlaceORM",
+            back_populates="results"
+        )
+    age_category: Mapped["AgeCategoryORM"] = relationship(
+        "AgeCategoryORM",
+        back_populates="results"
+    )
+    weight_category: Mapped["WeightCategoryORM"] = relationship(
+        "WeightCategoryORM",
         back_populates="results"
     )
 
@@ -114,10 +138,6 @@ class KarateKumiteResultORM(ResultORM):
     __tablename__ = 'karate_kumite_results'
 
     id: Mapped[uuid.UUID] = mapped_column(ForeignKey('results.id', ondelete='CASCADE'), primary_key=True)
-
-    place_id: Mapped[Optional[uuid.UUID]] = mapped_column(
-        ForeignKey('places.id', ondelete='SET NULL')
-    )
     number_of_fights: Mapped[int]
     number_of_wins: Mapped[int]
     number_of_defeats: Mapped[int]
@@ -126,11 +146,6 @@ class KarateKumiteResultORM(ResultORM):
     average_score: Mapped[Decimal] = mapped_column(Numeric(5, 2))
     efficiency: Mapped[Decimal] = mapped_column(Numeric(5, 2))
 
-    place: Mapped["PlaceORM"] = relationship(
-            "PlaceORM",
-            back_populates="results"
-        )
-
     __mapper_args__ = {
-        "polymorphic_identity": "karate"
+        "polymorphic_identity": "karate-kumite"
     }

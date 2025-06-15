@@ -60,9 +60,16 @@ class UserORM(Base):
     date_joined: Mapped[datetime.date]
     date_of_birth: Mapped[datetime.date] = mapped_column(nullable=True)
     img_url: Mapped[str] = mapped_column(String(1000))
+    gender_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey('genders.id', ondelete='SET NULL')
+    )
 
     organization: Mapped["OrganizationORM"] = relationship(
         "OrganizationORM",
+        back_populates="users"
+    )
+    gender: Mapped["GenderORM"] = relationship(
+        "GenderORM",
         back_populates="users"
     )
     roles: Mapped[List["RoleORM"]] = relationship(

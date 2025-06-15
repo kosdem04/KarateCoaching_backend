@@ -18,6 +18,22 @@ class GenderORM(Base):
     )
     name: Mapped[str] = mapped_column(String(20), unique=True)  # Например: "Мужчины", "Женщины"
 
+    users: Mapped[List["UserORM"]] = relationship(
+        "UserORM",
+        back_populates="gender",
+        cascade='all, delete'
+    )
+    age_categories: Mapped[List["AgeCategoryORM"]] = relationship(
+        "AgeCategoryORM",
+        back_populates="gender",
+        cascade='all, delete'
+    )
+    weight_categories: Mapped[List["WeightCategoryORM"]] = relationship(
+        "WeightCategoryORM",
+        back_populates="gender",
+        cascade='all, delete'
+    )
+
 
 
 class SportTypeORM(Base):
@@ -33,6 +49,11 @@ class SportTypeORM(Base):
 
     results: Mapped[List["ResultORM"]] = relationship(
         "ResultORM",
+        back_populates="sport_type",
+        passive_deletes=True
+    )
+    age_categories: Mapped[List["AgeCategoryORM"]] = relationship(
+        "AgeCategoryORM",
         back_populates="sport_type",
         passive_deletes=True
     )
@@ -57,11 +78,24 @@ class AgeCategoryORM(Base):
         ForeignKey('genders.id', ondelete='CASCADE')
     )
 
-    # sport_type: Mapped["SportTypeORM"] = relationship(back_populates="age_categories")
-    # weight_categories: Mapped[List["WeightCategoryORM"]] = relationship(
-    #     back_populates="age_category",
-    #     cascade="all, delete-orphan"
-    # )
+    gender: Mapped["GenderORM"] = relationship(
+        "GenderORM",
+        back_populates="age_categories"
+    )
+    sport_type: Mapped["SportTypeORM"] = relationship(
+        "SportTypeORM",
+        back_populates="age_categories"
+    )
+    weight_categories: Mapped[List["WeightCategoryORM"]] = relationship(
+        "WeightCategoryORM",
+        back_populates="age_category",
+        cascade="all, delete-orphan"
+    )
+    results: Mapped[List["ResultORM"]] = relationship(
+        "ResultORM",
+        back_populates="age_category",
+        cascade="all, delete-orphan"
+    )
 
 
 class WeightCategoryORM(Base):
@@ -81,6 +115,17 @@ class WeightCategoryORM(Base):
         ForeignKey('genders.id', ondelete='CASCADE')
     )
 
-    # age_category: Mapped["AgeCategoryORM"] = relationship(back_populates="weight_categories")
-    # gender: Mapped["GenderORM"] = relationship()
+    gender: Mapped["GenderORM"] = relationship(
+        "GenderORM",
+        back_populates="weight_categories"
+    )
+    age_category: Mapped["AgeCategoryORM"] = relationship(
+        "AgeCategoryORM",
+        back_populates="weight_categories"
+    )
+    results: Mapped[List["ResultORM"]] = relationship(
+        "ResultORM",
+        back_populates="weight_category",
+        cascade="all, delete-orphan"
+    )
 
